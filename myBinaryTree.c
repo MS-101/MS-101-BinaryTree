@@ -227,24 +227,24 @@ void balanceTree(binaryTree **root, binaryTree *nodePath[], int pathSize) {
 }
 
 void printNode(binaryTree *curNode) {
-        printf("NODE:\n");
-        printf("================\n");
+    printf("NODE:\n");
+    printf("================\n");
 
-        printf("key: %d\n", curNode -> key);
+    printf("key: %d\n", curNode -> key);
 
-        if (curNode -> childLeft != NULL) {
-            printf("childLeft: %d\n", curNode -> childLeft -> key);
-        } else {
-            printf("childLeft: NULL\n");
-        }
+    if (curNode -> childLeft != NULL) {
+        printf("childLeft: %d\n", curNode -> childLeft -> key);
+    } else {
+        printf("childLeft: NULL\n");
+    }
 
-        if (curNode -> childRight != NULL) {
-            printf("childRight: %d\n", curNode -> childRight -> key);
-        } else {
-            printf("childRight: NULL\n");
-        }
+    if (curNode -> childRight != NULL) {
+        printf("childRight: %d\n", curNode -> childRight -> key);
+    } else {
+        printf("childRight: NULL\n");
+    }
 
-        printf("\n");
+    printf("\n");
 }
 
 void printTree(binaryTree *curNode) {

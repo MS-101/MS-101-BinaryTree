@@ -9,7 +9,8 @@ typedef struct hashNode {
     b - occupied
     */
 
-    int val;
+    int key;
+    int data;
 } hashNode;
 
 typedef struct hashTable {
@@ -17,49 +18,58 @@ typedef struct hashTable {
     hashNode *hashArray;
 } hashTable;
 
-int hashFunction(hashTable *myHashTable, int val) {
-    val %= myHashTable -> size;
+int hashFunction(hashTable *myHashTable, int key) {
+    key %= myHashTable -> size;
 
-    return val;
+    return key;
 }
 
-int offsetHashFunction(int val) {
-    val %= 1000;
+int offsetHashFunction(int key) {
+    key %= 1000;
 
-    return val;
+    return key;
 }
 
-void insertHash(hashTable **myHashTable, int val) {
-    int size, myHash, offsetHash, i;
+void insertHash(hashTable **myHashTable, int key, int data) {
+    int size, myHash, offsetHash, arrayIndex, originIndex, i;
 
     size = (*myHashTable) -> size;
-    myHash = hashFunction(*myHashTable, val);
-    offsetHash = offsetHashFunction(val);
+    myHash = hashFunction(*myHashTable, key);
+    offsetHash = offsetHashFunction(key);
 
+    arrayIndex = myHash % size;
+    originIndex = arrayIndex;
 
-    i = 0;
-    while ((*myHashTable) -> hashArray[(myHash + i * offsetHash) % size].status != 'a') {
-        if ((*myHashTable) -> hashArray[(myHash + i * offsetHash) % size].val == val) {
+    i = 1;
+    while ((*myHashTable) -> hashArray[arrayIndex].status != 'a') {
+        arrayIndex = (myHash + i * offsetHash) % size;
+
+        if ((*myHashTable) -> hashArray[arrayIndex].key == key) {
+            break;
+        }
+
+        if (originIndex == arrayIndex) {
             return;
         }
 
         i++;
     }
 
-    (*myHashTable) -> hashArray[(myHash + i * offsetHash) % size].status = 'b';
-    (*myHashTable) -> hashArray[(myHash + i * offsetHash) % size].val = val;
+    (*myHashTable) -> hashArray[arrayIndex].status = 'b';
+    (*myHashTable) -> hashArray[arrayIndex].key = key;
+    (*myHashTable) -> hashArray[arrayIndex].data = data;
 }
 
-hashNode searchHash(hashTable *myHashTable, int val) {
+hashNode searchHash(hashTable *myHashTable, int key) {
     hashNode foundNode;
     int size, myHash, offsetHash, i;
 
     size = myHashTable -> size;
-    myHash = hashFunction(myHashTable, val);
-    offsetHash = offsetHashFunction(val);
+    myHash = hashFunction(myHashTable, key);
+    offsetHash = offsetHashFunction(key);
 
     i = 0;
-    while (myHashTable -> hashArray[(myHash + i * offsetHash) % size].val != val) {
+    while (myHashTable -> hashArray[(myHash + i * offsetHash) % size].key != key) {
         i++;
     }
 
@@ -70,7 +80,7 @@ hashNode searchHash(hashTable *myHashTable, int val) {
 
 void resizeHashTable(hashTable **myHashTable) {
     hashTable *newHashTable;
-    int oldSize, newSize, myVal, i;
+    int oldSize, newSize, myKey, myData, i;
 
     oldSize = (*myHashTable) -> size;
     newSize = 2 * oldSize;
@@ -82,13 +92,15 @@ void resizeHashTable(hashTable **myHashTable) {
 
     for (i = 0; i < newSize; i++) {
         newHashTable -> hashArray[i].status = 'a';
-        newHashTable -> hashArray[i].val = 0;
+        newHashTable -> hashArray[i].key = 0;
+        newHashTable -> hashArray[i].data = 0;
     }
 
     for (i = 0; i < oldSize; i++) {
         if ((*myHashTable) -> hashArray[i].status == 'b') {
-            myVal = (*myHashTable) -> hashArray[i].val;
-            insertHash(&newHashTable, myVal);
+            myKey = (*myHashTable) -> hashArray[i].key;
+            myData = (*myHashTable) -> hashArray[i].data;
+            insertHash(&newHashTable, myKey, myData);
         }
     }
 
@@ -99,18 +111,20 @@ void resizeHashTable(hashTable **myHashTable) {
 }
 
 void printNode(hashNode myHashNode) {
-    printf("%c/%d\n", myHashNode.status, myHashNode.val);
+    printf("key = %d\n", myHashNode.key);
+    printf("data = %d\n", myHashNode.data);
+    printf("\n");
 }
 
 void printHashTable(hashTable *myHashTable) {
     int i;
 
-    printf("myHashTable -> size: %d\n", myHashTable -> size);
-    printf("===========================\n");
+    printf("myHashTable -> size = %d\n", myHashTable -> size);
+    printf("==============================\n");
 
     for (i = 0; i < myHashTable -> size; i++) {
         if (myHashTable -> hashArray[i].status == 'b') {
-            printf("myHashTable[%d]: ", i);
+            printf("myHashTable -> hashArray[%d]:\n", i);
             printNode(myHashTable -> hashArray[i]);
         }
     }
@@ -132,22 +146,21 @@ int main() {
 
     for (i = 0; i < keyCapacity; i++) {
         myHashTable -> hashArray[i].status = 'a';
-        myHashTable -> hashArray[i].val = 0;
+        myHashTable -> hashArray[i].key = 0;
+        myHashTable -> hashArray[i].data = 0;
     }
 
     printHashTable(myHashTable);
-    insertHash(&myHashTable, 1100);
+    insertHash(&myHashTable, 1100, 5);
     printHashTable(myHashTable);
-    insertHash(&myHashTable, 2100);
+    insertHash(&myHashTable, 2100, 8);
     printHashTable(myHashTable);
 
-    /*
     resizeHashTable(&myHashTable);
     printHashTable(myHashTable);
-    */
 
     testNode = searchHash(myHashTable, 2100);
-    printf("found node: ");
+    printf("found node:\n");
     printNode(testNode);
 
     return 0;
